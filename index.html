@@ -37,8 +37,33 @@
         width: 100%;
         margin: auto;
       }
-      #copyToClipboard {
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
         margin-top: 64px;
+      }
+      .actions .actions-time {
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+      }
+      .actions .actions-time .action-time-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .actions .actions-time .action-time-input {
+        background-color: #222;
+        border-radius: 4px;
+        border-style: none;
+        box-sizing: border-box;
+        color: #fff;
+        outline: none;
+        padding: 9px 20px 8px;
+        height: 44px;
+      }
+      .actions-button {
         width: max-content;
         background-color: #222;
         border-radius: 4px;
@@ -60,8 +85,8 @@
         touch-action: manipulation;
       }
 
-      #copyToClipboard:hover,
-      #copyToClipboard:focus {
+      .actions-button:hover,
+      .actions-button:focus {
         opacity: 0.75;
       }
       #output-html {
@@ -97,7 +122,17 @@
         </div>
       </div>
 
-      <button id="copyToClipboard" onclick="copyToClipboard(getQuillHtml())">Copy HTML</button>
+      <div class="actions">
+        <button class="actions-button" id="copyToClipboard" onclick="copyToClipboard(getQuillHtml())">Copy HTML</button>
+
+        <div class="actions-time">
+          <button class="actions-button" id="copyReadingTime" onclick="copyReadingTime(getReadingTime())">Copy Reading Time</button>
+          <div class="action-time-input-wrapper">
+            <label for="readingTimeInput">Reading time:</label>
+            <input class="action-time-input" placeholder="Please write content." id="readingTimeInput" type="text" name="readingTimeInput" />
+          </div>
+        </div>
+      </div>
       <pre><code id="output-html" class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">h1</span>&gt;</span>Plese write your content here.<span class="hljs-tag">&lt;/<span class="hljs-title">h1</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>➡️ You can copy the HTML output below 🔻.<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span></code></pre>
     </div>
 
@@ -123,6 +158,7 @@
 
       quill.on("text-change", function (delta, source) {
         updateHtmlOutput();
+        document.getElementById("readingTimeInput").value = getReadingTime();
       });
 
       // When the convert button is clicked, update output
@@ -133,6 +169,12 @@
       // Return the HTML content of the editor
       function getQuillHtml() {
         return quill.root.innerHTML;
+      }
+      function getReadingTime() {
+        const wordCount = quill.getText().trim().split(/\s+/).length;
+        const minutes = Math.floor(wordCount / 180);
+        const seconds = Math.round((wordCount % 180) / (180 / 60));
+        return minutes + ' min ' + seconds + ' seconds';
       }
 
       // Highlight code output
@@ -155,6 +197,18 @@
         document.getElementById("copyToClipboard").innerText = "Copied !";
         setTimeout(() => {
           document.getElementById("copyToClipboard").innerText = "Copy HTML";
+        }, 500);
+      }
+      function copyReadingTime(str) {
+        var aux = document.createElement("input");
+        aux.setAttribute("value", str);
+        document.body.appendChild(aux);
+        aux.select();
+        document.execCommand("copy");
+        document.body.removeChild(aux);
+        document.getElementById("copyReadingTime").innerText = "Copied !";
+        setTimeout(() => {
+          document.getElementById("copyReadingTime").innerText = "Copy Reading Time";
         }, 500);
       }
       updateHtmlOutput();
